@@ -39,15 +39,15 @@ import requests
 import io
 import textract
 import warnings
-import cloudinary as Cloud
+# import cloudinary as Cloud
 warnings.filterwarnings("ignore")
 directory = os.getcwd()
 
-Cloud.config.update = ({
-    'cloud_name':'read-it',
-    'api_key': '972376323111169',
-    'api_secret': 'nS4CyxoR-7BPV8uSG8EIdEEn71c'
-})
+# Cloud.config.update = ({
+#     'cloud_name':'read-it',
+#     'api_key': '972376323111169',
+#     'api_secret': 'nS4CyxoR-7BPV8uSG8EIdEEn71c'
+# })
 
 class Text:
   def __init__(self,no_of_topics=10, scan=False):

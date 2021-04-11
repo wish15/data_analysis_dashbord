@@ -7,6 +7,8 @@ import browse_icon from '../../Assets/icons/browse.png';
 import Sidebar from '../Sidebar';
 import GaugeChart from 'react-gauge-chart'
 import { IgrLinearGauge } from 'igniteui-react-gauges';
+import Chart from "react-google-charts";
+
 
 const TextDash=()=>{
   const [file,setFile]=useState("");

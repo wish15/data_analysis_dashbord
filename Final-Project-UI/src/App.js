@@ -5,7 +5,7 @@ import Form2 from './Components/Form2';
 import Sidebar from './Components/Sidebar';
 import TextDash from './Components/Text/TextDash';
 import VideoDash from './Components/Video/VideoDash';
-
+import AudioDash from './Components/Audio/AudioDash';
 function App() {
   return (
     <Router>
@@ -25,6 +25,9 @@ function App() {
         </Route>
         <Route exact path="/video">
           <VideoDash/>
+        </Route>
+        <Route exact path="/audio">
+          <AudioDash/>
         </Route>
         
 

@@ -3,11 +3,10 @@ from flask import Flask, flash, request, redirect, url_for, session,render_templ
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
 import logging
-#from keras.models import load_model
-from Text.Text import Text
-from Video.test import Video_Analysis
 from keras.models import load_model
-#from Video.test import Video_Analysis
+from Text.Text import Text
+from Audio.Audio import Diariazation
+from Video.test import Video_Analysis
 logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger('HELLO WORLD')
@@ -15,11 +14,11 @@ directory = os.getcwd()
 
 
 
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif','.mkv','.mp4'])
-#model=load_model('./Video/saved_model.h5')
-
-
-
+'''
+UPLOAD_FOLDER = './Video'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif','.mp4'])
+model=load_model('./Video/saved_model.h5')
+'''
 app = Flask(__name__)
 CORS(app)
 #app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -40,11 +39,12 @@ def lol(filename):
     return render_template(str(filename))
 
 
+
+
 @app.route('/uploadText', methods=['POST','GET'])
 @cross_origin()
 def fileUpload():
-
-    UPLOAD_FOLDER=directory+"\\Text"
+    UPLOAD_FOLDER="./Text"
     target=os.path.join(UPLOAD_FOLDER,'TextD')
     if not os.path.isdir(target):
         os.mkdir(target)
@@ -111,6 +111,31 @@ def fileVideoUpload():
     
     
     return response
+
+
+
+@app.route('/uploadAudio', methods=['POST','GET'])
+@cross_origin()
+def AudioFileUpload():
+    UPLOAD_FOLDER="./Audio"
+    target=os.path.join(UPLOAD_FOLDER,'AudioD')
+    if not os.path.isdir(target):
+        os.mkdir(target)
+    logger.info("welcome to upload`")
+    file_path = None
+    url=None
+    text=None
+    if(request.files):
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        destination="/".join([target, filename])
+        print(destination,filename)
+        file.save(destination)
+        file_path=destination
+        ans=Diariazation(file_path,filename)
+        return ans
+    else :
+        return {"msg":"NO file uploadede"}
 
 
 
