@@ -38,23 +38,34 @@ def fileUpload():
     if not os.path.isdir(target):
         os.mkdir(target)
     logger.info("welcome to upload`")
-    
-    file = request.files['file']
-    filename = secure_filename(file.filename)
-    destination="/".join([target, filename])
-    print(destination,filename)
-    file.save(destination)
+    file_path = None
+    url=None
+    text=None
+    if(request.files):
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        destination="/".join([target, filename])
+        print(destination,filename)
+        file.save(destination)
+        file_path=destination
+    elif(request.form["url"]):
+        url=request.form["url"]
+        print("lol",url)
+    else:
+        text=request.form["text"]
+
     text_class=Text()
-    a,b,c=list(text_class.topic_modelling(file_path=destination))
-    summary=text_class.extractive_summary(file_path=destination)
-    readability=text_class.readability_analysis(file_path=destination)
+    text_class.file_path_ext(file_path, url,text)
+    a,b,c=list(text_class.topic_modelling())
+    summary=text_class.extractive_summary()
+    readability=text_class.readability_analysis()
     
     response={'summary':summary,'readability':readability,'topic_modelling':[a,b,c]}
 
     # session['uploadFilePath']=destination
     # response={"test":"heyy","response":res,"reconstruction":reconstruction_array}
     
-    
+    #response={'summary':'summary','readability':'readability','topic_modelling':[['a','b','c'],['a','b','c'],['a','b','c']]}
     return response
 
 

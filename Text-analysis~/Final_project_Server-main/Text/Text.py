@@ -10,7 +10,7 @@ import argparse
 from pdf2image import convert_from_path
 import urllib3
 import urllib.request
-from urllib.request import urlretrieve
+from urllib.request import urlretrieve, Request
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
@@ -147,7 +147,12 @@ class Text:
     return pytesseract.image_to_string(im)
         
 
-  def __file_path_ext(self,file_path, url):
+  def file_path_ext(self,file_path=None, url=None,text=None):
+    self.file_path=file_path
+    self.text=text
+    self.url=url
+    #print(file_path,text,url)
+    
     if self.scan==True:
       pg=self.__pdf_to_image(file_path)
       text=""
@@ -158,13 +163,22 @@ class Text:
         else:
           text=text+" "+self.__extract_text_img(img)
     elif url:
+      print("lol")
       if(url.startswith("http") or url.startswith("www.")) and (url.endswith(".pdf") or url.endswith(".txt") or url.endswith(".docx") or url.endswith(".odt") or url.endswith(".doc")):
         s=url.split('/')
         print(s)
-        urlretrieve(url,directory+"\\"+str(s[-1]))
+        print(url)
+        
+        #req = Request(url,headers={'User-Agent': 'Mozilla/5.0'})
+        #print(req)
+        opener = urllib.request.URLopener()
+        opener.addheader('User-Agent', 'whatever')
+        filename, headers = opener.retrieve(url, directory+"\\"+str(s[-1]))
+        #urlretrieve(url,directory+"\\"+str(s[-1]))
         text=textract.process(directory+"\\"+str(s[-1]))
         text=text.decode('unicode_escape').encode('ascii', 'ignore')
         text=text.decode("utf-8")
+        #text="vishal rochlani hsdjksh hajshfk hdjshk"
       else:
         text=self.__text_extract_url(url)
     elif file_path:
@@ -173,14 +187,21 @@ class Text:
       text=text.decode('unicode_escape').encode('ascii', 'ignore')
       text=text.decode("utf-8")
       #text=self.__extract_text_pdf_txt(self.file_path)
+    text=text.replace("\n"," ")
+    text=text.replace("\r"," ")
+    text=text.replace("\t"," ")
+    text=text.replace("\x0c"," ")
+    text=" ".join(text.split(" "))
     
     text=text.replace("\n"," ")
     text=" ".join(text.split(" "))
-    return text
+    self.text=text
+    
 
 
   #for readability
   def __text_extract_url(self,file_path):
+
     url=file_path
     http = urllib3.PoolManager()
     response = http.request('GET', url)
@@ -295,17 +316,8 @@ class Text:
     return [ps/nw, ns/nw, cs/nw, us/nw]
 
   #return: dictionary of readability scores
-  def readability_analysis(self,file_path=None, text=None, url=None):
-    self.file_path=file_path
-    self.text=text
-    self.url=url
-    if self.text==None:
-      self.text=self.__file_path_ext(self.file_path, self.url)
-    self.text=self.text.replace("\n"," ")
-    self.text=self.text.replace("\r"," ")
-    self.text=self.text.replace("\t"," ")
-    self.text=self.text.replace("\x0c"," ")
-    self.text=" ".join(self.text.split(" "))
+  def readability_analysis(self):
+
     sec,no_of_sent=self.__preprocess_text_readability(self.text)
     #print(sec,no_of_sent)
     #return text_preprocess, self.no_of_sent
@@ -344,18 +356,7 @@ class Text:
   # 2. dictionary with key as topic no and value a slist of words in that topic
   3. text extracted
   '''
-  def topic_modelling(self,file_path=None, url=None, text=None):
-    self.file_path=file_path
-    self.text=text
-    self.url=url
-    if self.text==None:
-      self.text=self.__file_path_ext(self.file_path, self.url)
-    
-    self.text=self.text.replace("\n"," ")
-    self.text=self.text.replace("\r"," ")
-    self.text=self.text.replace("\t"," ")
-    self.text=self.text.replace("\x0c"," ")
-    self.text=" ".join(self.text.split(" "))
+  def topic_modelling(self):
     sec=self.__preprocess_text_pylda(self.text)
     dictionary = corpora.Dictionary(sec)
     doc_term_matrix = [dictionary.doc2bow(rev) for rev in (sec)]
@@ -393,15 +394,5 @@ class Text:
     
 
   #return summary as string
-  def extractive_summary(self,file_path=None,text=None,url=None):
-    self.file_path=file_path
-    self.text=text
-    self.url=url
-    if self.text==None:
-      self.text=self.__file_path_ext(self.file_path, self.url)
-    self.text=self.text.replace("\n"," ")
-    self.text=self.text.replace("\r"," ")
-    self.text=self.text.replace("\t"," ")
-    self.text=self.text.replace("\x0c"," ")
-    self.text=" ".join(self.text.split(" "))
+  def extractive_summary(self):
     return summarize(self.text,ratio=0.5)
