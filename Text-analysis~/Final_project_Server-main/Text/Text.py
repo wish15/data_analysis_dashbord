@@ -39,8 +39,15 @@ import requests
 import io
 import textract
 import warnings
+import cloudinary as Cloud
 warnings.filterwarnings("ignore")
 directory = os.getcwd()
+
+Cloud.config.update = ({
+    'cloud_name':'read-it',
+    'api_key': '972376323111169',
+    'api_secret': 'nS4CyxoR-7BPV8uSG8EIdEEn71c'
+})
 
 class Text:
   def __init__(self,no_of_topics=10, scan=False):
@@ -173,9 +180,9 @@ class Text:
         #print(req)
         opener = urllib.request.URLopener()
         opener.addheader('User-Agent', 'whatever')
-        filename, headers = opener.retrieve(url, directory+"\\"+str(s[-1]))
+        filename, headers = opener.retrieve(url, directory+"\\Text\\TextD"+str(s[-1]))
         #urlretrieve(url,directory+"\\"+str(s[-1]))
-        text=textract.process(directory+"\\"+str(s[-1]))
+        text=textract.process(directory+"\\Text\\TextD"+str(s[-1]))
         text=text.decode('unicode_escape').encode('ascii', 'ignore')
         text=text.decode("utf-8")
         #text="vishal rochlani hsdjksh hajshfk hdjshk"
@@ -356,6 +363,10 @@ class Text:
   # 2. dictionary with key as topic no and value a slist of words in that topic
   3. text extracted
   '''
+  def upload_cloudinary(self,path):
+    pipeshelf = Cloud.CloudinaryImage(path)
+    return pipeshelf.url
+
   def topic_modelling(self):
     sec=self.__preprocess_text_pylda(self.text)
     dictionary = corpora.Dictionary(sec)
@@ -367,8 +378,9 @@ class Text:
                 chunksize=1000, passes=2)
     #pyLDAvis.enable_notebook()
     vis = pyLDAvis.gensim.prepare(lda_model, doc_term_matrix, dictionary)
-    pyLDAvis.save_html(vis,directory+"\\abc.html")
-    pyLDAvis.save_json(vis,directory+"\\abc.json")
+    pyLDAvis.save_html(vis,directory+"\\templates\\abc.html")
+    #Clodinary_url = self.upload_cloudinary(directory+"\\Text\\Output\\abc.html")
+    pyLDAvis.save_json(vis,directory+"\\Text\\Output\\abc.json")
     p=list(lda_model.print_topics())
     topics_=dict()
     for i in p:
@@ -389,7 +401,8 @@ class Text:
       #print(p)
       #for j in range(len(s)):
         #s[j]
-    return topics_, topic_list, self.text
+    Clodinary_url="http://localhost:5000/abc.html"
+    return topics_, topic_list, self.text,Clodinary_url
       
     
 

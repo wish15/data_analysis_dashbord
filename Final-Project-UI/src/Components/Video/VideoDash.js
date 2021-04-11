@@ -57,7 +57,7 @@ const VideoDash=()=>{
       }
     }
     
-    Axios.post('http://localhost:5000/uploader',data,options).then((res) => {
+    Axios.post('http://localhost:5000/uploadVideo',data,options).then((res) => {
       console.log(res);
       console.log(res.data.reconstruction);
       setIsResponse(1);

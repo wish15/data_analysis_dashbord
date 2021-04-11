@@ -79,7 +79,7 @@ const TextDash=()=>{
       }
     }
     setProcessing(1);
-    Axios.post('http://localhost:5050/uploadText',dataF,options)
+    Axios.post('http://localhost:5000/uploadText',dataF,options)
     .then((res)=>{
       console.log(res);
       setStatus(0);
