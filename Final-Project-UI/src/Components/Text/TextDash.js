@@ -8,6 +8,9 @@ import Sidebar from '../Sidebar';
 import GaugeChart from 'react-gauge-chart'
 import { IgrLinearGauge } from 'igniteui-react-gauges';
 import Chart from "react-google-charts";
+import spinner from '../../Assets/icons/infi_spinner.gif';
+import save_icon from '../../Assets/icons/save.png';
+
 
 
 const TextDash=()=>{
@@ -45,6 +48,26 @@ const TextDash=()=>{
     console.log(response.data);
     return response;
 }
+
+  const download=()=> {
+                
+    //creating an invisible element
+    var element = document.createElement('a');
+    element.setAttribute('href', 
+    'data:text/plain;charset=utf-8, '
+    + encodeURIComponent(incoming.summary));
+    element.setAttribute('download', "summary.txt");
+
+    // Above code is equivalent to
+    // <a href="path of file" download="file name">
+
+    document.body.appendChild(element);
+
+    //onClick property
+    element.click();
+
+    document.body.removeChild(element);
+  }
   const handleUploadImage=async (ev) =>{
     ev.preventDefault();
     // const response=await this.uploadtocloud();
@@ -52,6 +75,8 @@ const TextDash=()=>{
     // console.log(response);
     // console.log(data);
     const dataF = new FormData();
+    const condataset=[{data:[0.03945,0.04586,0.004523,0.004900],
+      backgroundColor:["red","green","yellow","blue"]}];
 
     if(active==0)
     { 
@@ -112,7 +137,7 @@ const TextDash=()=>{
 
   
     return (
-      <>
+      <div>
       <div className="row mx-0">
         <Sidebar/>
       <div className="col-lg-11 col-md-6 col-sm-12" style={{height:"calc(100vh - 53px)" ,overflowY:"scroll"}}>
@@ -208,6 +233,13 @@ const TextDash=()=>{
               <button className="btn btn-primary " >Submit</button>
             </div>
       </form>
+      { processing==1 && status==100 && <div class="mx-auto text-center">
+        <img src={spinner} />
+        <span style={{color:"deeppink",fontSize:"32px"}}><i>Processing...</i></span>
+        </div>}
+        
+
+
       {  processing===2 &&  incoming && incoming.readability &&
         <div>
       <div className="row mt-5">
@@ -292,11 +324,37 @@ const TextDash=()=>{
                     </div>
 
     </div>
+    <div className="row mx-4 my-4" >
+    <div className="col-lg-4 col-md-4 ">
+        <h5 className="text-heading ">
+              <span style={{padding:"4px 70px",backgroundColor:"beige",borderRadius:"30%",cursor:"pointer"}} >Distribution of Proportions</span>
+            </h5>
+        
+        <Chart
+          width={'381px'}
+          height={'200px'}
+          chartType="PieChart"
+          loader={<div>Loading Chart</div>}
+          data={[
+            ['Pizza', 'Popularity'],
+            ['Positive Proportion', incoming.readability.positive_proportion],
+            ['Negative Proportion', incoming.readability.negative_proportion],
+            ['Constraning Proportion', incoming.readability.constraning_proportion],
+            ['Uncertainity Proportion', incoming.readability.uncertainity_proportion]
+          ]}
+          options={{
+            title: 'Distribution of Text over different Index',
+            sliceVisibilityThreshold: 0.00001, 
+          }}
+          rootProps={{ 'data-testid': '7' }}
+        />
     </div>
+    </div>
+
     <div className="row mx-4 my-4" >
       <div className="text-center">
     <h5 className="text-heading ">
-          <span style={{padding:"4px 70px",backgroundColor:"beige",borderRadius:"30%",cursor:"pointer"}} >Summary</span>
+          <span style={{padding:"4px 70px",backgroundColor:"beige",borderRadius:"30%",cursor:"pointer"}} >Summary</span>< span style={{position:"absolute",right:"30px"}} onClick={download}><img src={save_icon} height="25px"/></span>
         </h5>
         </div>
       <div style={{backgroundColor:"palegoldenrod",padding:"15px",height:"230px",overflowY:"scroll"}}>
@@ -304,10 +362,51 @@ const TextDash=()=>{
     </div>
     </div>
       </div>
+      </div>
       }
+
+
+
+          <div className="row mx-4 my-4" >
+            <div className="col-lg-4 col-md-4 text-center">
+                <h5 className="text-heading ">
+                      <span style={{padding:"4px 70px",backgroundColor:"beige",borderRadius:"30%",cursor:"pointer"}} >Distribution</span>
+                    </h5>
+                
+                <Chart
+                  width={'381px'}
+                  height={'200px'}
+                  chartType="PieChart"
+                  loader={<div>Loading Chart</div>}
+                  data={[
+                    ['Pizza', 'Popularity'],
+                    ['Positive Proportion', 0.045],
+                    ['Negative Proportion', 0.039],
+                    ['Constraning Proportion', 0.0045],
+                    ['Uncertainity Proportion', 0.0049]
+                  ]}
+                  options={{
+                    title: 'Distribution of Text over different Index',
+                    sliceVisibilityThreshold: 0.00001, 
+                  }}
+                  rootProps={{ 'data-testid': '7' }}
+                />
+            </div>
+            <div className="col-lg-4 col-md-4 text-center">
+                <h5 className="text-heading ">
+                      <span style={{padding:"4px 70px",backgroundColor:"beige",borderRadius:"30%",cursor:"pointer"}} >Topic Modelling</span>
+                    </h5>
+                    See Detailed Topic modelling on following 
+                    <a href="http://localhost:5000/abc.html" target="_blank"> link</a>
+            </div>
+          </div>
+
+
+      </div> 
       </div>
       </div>
-      </>
+      
+      
     );
   
 }

@@ -6,13 +6,15 @@ import './../Input.css'
 import browse_icon from '../../Assets/icons/browse.png';
 import Sidebar from '../Sidebar'
 import Chart from "react-google-charts";
-
+import spinner from '../../Assets/icons/col_spinner.gif';
+import rot_spinner from '../../Assets/icons/tri_spinner.gif'
 const VideoDash=()=>{
   const [file,setFile]=useState("");
   const [active,setActive]=useState(0);
   const [status,setStatus]=useState(0);
   const [reconstruction,setReconstruction]=useState([[]]);
   const [isResponse,setIsResponse]=useState(0);
+  const [processing,setProcessing]=useState(0);
   useEffect(()=>{
 
   },[])
@@ -56,12 +58,13 @@ const VideoDash=()=>{
         setStatus(percent);
       }
     }
-    
+    setProcessing(1);
     Axios.post('http://localhost:5000/uploadVideo',data,options).then((res) => {
       console.log(res);
       console.log(res.data.reconstruction);
       setIsResponse(1);
       setReconstruction(res.data.reconstruction);
+      setProcessing(2);
     }).catch((err) => {
       console.log(err);
     });
@@ -147,6 +150,14 @@ const VideoDash=()=>{
               <button className="btn btn-primary " style={{position:"absolute",right:"100px"}}>Submit</button>
             </div>
       </form>
+
+      { processing==1 && status==100 &&         <div class="mx-auto text-center mt-5 pt-5">
+        <img src={rot_spinner} height="160px" />
+        <span style={{color:"deeppink",fontSize:"32px"}}><i>Processing...</i></span>
+        </div>
+        }
+
+        {isResponse===1 &&
       <div className="row mt-5">
         <div className="col-lg-4 col-md-4 text-center" >
           
@@ -155,7 +166,7 @@ const VideoDash=()=>{
         </h5>
         <div style={{backgroundColor:"black"}}>
           
-            {isResponse===1 &&  <Chart
+            <Chart
                   width={'1200px'}
                   height={'400px'}
                   chartType="LineChart"
@@ -170,12 +181,12 @@ const VideoDash=()=>{
                     },
                   }}
                   rootProps={{ 'data-testid': '1' }}
-                />}
+                />
         </div>
                   </div>
-                  </div>
+                  </div>}
       </div>
-      
+                
       </div>
       
                   

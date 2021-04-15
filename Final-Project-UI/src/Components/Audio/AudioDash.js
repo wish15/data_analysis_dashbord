@@ -6,18 +6,25 @@ import './../Input.css'
 import browse_icon from '../../Assets/icons/browse.png';
 import Sidebar from '../Sidebar'
 import Chart from "react-google-charts";
+import rot_spinner from '../../Assets/icons/fast_spinner.gif'
 
 const AudioDash=()=>{
   const [file,setFile]=useState("");
   const [active,setActive]=useState(0);
   const [status,setStatus]=useState(0);
   const [isResponse,setIsResponse]=useState(0);
+  const [processing,setProcessing]=useState(0);
+  const [intarray,setIntarray]=useState([[[]]])
+  const [intervals,setIntervals]=useState({"0":[[37.7,49.22]],"1":[[25.88,37.7]]});
+  const [transcript,setTranscript]=useState({"0":["the end of the two weeks she grew tired of waiting and the day is so very long that I doing not without some so"],"1":["100 police traffic is going right and find the profit in jogging everything"],"2":["I can see now that these things are different aspect for those who is nearest to announce a special attitude mind may be allowed the tree does indeed with kindness"]});
   useEffect(()=>{
-
+    setIntervals({"0":[[37.7,49.22]],"1":[[25.88,37.7]]});
+    
   },[])
   useEffect(()=>{
-
-  },[active])
+    console.log("change in intrevals",intervals);
+  },[intervals])
+  
   
 
   const uploadtocloud=async ()=>{
@@ -55,11 +62,32 @@ const AudioDash=()=>{
         setStatus(percent);
       }
     }
-    
+    setProcessing(1);
     Axios.post('http://localhost:5000/uploadAudio',data,options).then((res) => {
       console.log(res);
       console.log(res.data);
-      setIsResponse(1);
+      const resdata=JSON.stringify(res.data)
+      // const resdata=res.data
+      let intervalarr=[]
+      console.log(resdata);
+      for (const item in resdata['intervals']) {
+        intervalarr.push(resdata.item);
+      }
+      setIntarray(intervalarr);
+      console.log(intervalarr);
+      let tr={...transcript}
+      tr['ans']=resdata["list"]
+      setTranscript(tr)
+      setIntervals({...resdata["intervals"]})
+      setTimeout(()=>{
+        setIsResponse(1);
+        setProcessing(2);
+
+        console.log(transcript)
+        console.log(intervals)
+        console.log(intervalarr)
+      },2000)
+
     }).catch((err) => {
       console.log(err);
     });
@@ -145,18 +173,83 @@ const AudioDash=()=>{
               <button className="btn btn-primary " style={{position:"absolute",right:"100px"}}>Submit</button>
             </div>
       </form>
+      { processing==1 && status==100 &&         <div class="mx-auto text-center mt-5 pt-5">
+        <img src={rot_spinner} height="160px" />
+        <span style={{color:"deeppink",fontSize:"32px"}}><i>Processing...</i></span>
+        </div>
+        }
+  { isResponse==1 &&
       <div className="row mt-5">
         <div className="col-lg-4 col-md-4 text-center" >
           
           <h5 className="text-heading">
           <span style={{padding:"4px 70px",backgroundColor:"beige",borderRadius:"30%",cursor:"pointer"}} > Video Anamoly </span>
         </h5>
-        <div style={{backgroundColor:"black"}}>
-          
-            {isResponse===1 &&  <div>ans is</div>}
-        </div>
+        
+        
                   </div>
                   </div>
+    }
+
+            <div className="mt-5 pt-5">
+            <Chart
+              width={'100%'}
+              height={'200px'}
+              chartType="Timeline"
+              loader={<div>Loading Chart</div>}
+              data={[
+                [
+                  { type: 'string', id: 'Room' },
+                  { type: 'string', id: 'Name' },
+                  { type: 'number', id: 'Start' },
+                  { type: 'number', id: 'End' },
+                ],
+                [
+                  'Magnolia Room',
+                  'Beginning JavaScript',
+                  0,
+                  15000,
+                ],
+                [
+                  'Magnolia Room',
+                  'Intermediate JavaScript', 20000,25000,
+                  // new Date(0, 0, 0, 14, 0, 0),
+                  // new Date(0, 0, 0, 15, 30, 0),
+                ],
+                [
+                  'Magnolia Room',
+                  'Advanced JavaScript',30000,35000,
+                  // new Date(0, 0, 0, 16, 0, 0),
+                  // new Date(0, 0, 0, 17, 30, 0),
+                ],
+                [
+                  'Willow Room',
+                  'Beginning Google Charts',10000,15000,
+                  // new Date(0, 0, 0, 12, 30, 0),
+                  // new Date(0, 0, 0, 14, 0, 0),
+                ],
+                [
+                  'Willow Room',
+                  'Intermediate Google Charts',20000,28000,
+                  // new Date(0, 0, 0, 14, 30, 0),
+                  // new Date(0, 0, 0, 16, 0, 0),
+                ],
+                [
+                  'Willow Room',
+                  'Advanced Google Charts',40000,45000,
+                  // new Date(0, 0, 0, 16, 30, 0),
+                  // new Date(0, 0, 0, 18, 0, 0),
+                ],
+              ]}
+              options={{
+                timeline: {
+                  colorByRowLabel: true,
+                },
+              }}
+              rootProps={{ 'data-testid': '5' }}
+            />
+            </div>
+
       </div>
       
       </div>
